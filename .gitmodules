@@ -1,3 +1,3 @@
-[submodule "SubModules/AFNetworking"]
-	path = SubModules/AFNetworking
-	url = https://github.com/AFNetworking/AFNetworking.git
+[submodule "SubModules/MKNetworkKit"]
+	path = SubModules/MKNetworkKit
+	url = https://github.com/MugunthKumar/MKNetworkKit.git
