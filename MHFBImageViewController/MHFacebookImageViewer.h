@@ -39,6 +39,10 @@ typedef void (^MHFacebookImageViewerClosingBlock)(void);
 
 @protocol MHFacebookImageViewerDelegate <NSObject>
 @optional
+- (UIImage *)doneButtonImage;
+- (CGSize)doneButtonImageSize;
+
+- (UIImage *)doneButtonBackgroundImage;
 - (UIColor *)doneButtonBackgroundColor;
 - (UIColor *)doneButtonFontColor;
 - (UIFont *)doneButtonFont;

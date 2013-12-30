@@ -559,34 +559,54 @@ static const CGFloat kMinImageScale = 1.0f;
   [self.view insertSubview:_blackMask atIndex:0];
   
   _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-  if (self.delegate && [self.delegate respondsToSelector:@selector(doneButtonText)]) {
-    [_doneButton setTitle:[self.delegate doneButtonText]
-                 forState:UIControlStateNormal];
-    [_doneButton setShowsTouchWhenHighlighted:YES];
-    if ([self.delegate respondsToSelector:@selector(doneButtonBackgroundColor)]) {
-      [_doneButton setBackgroundColor:[self.delegate doneButtonBackgroundColor]];
-    }
-    if ([self.delegate respondsToSelector:@selector(doneButtonFontColor)]) {
-      [_doneButton setTitleColor:[self.delegate doneButtonFontColor]
-                        forState:UIControlStateNormal];
-    }
-    if ([self.delegate respondsToSelector:@selector(doneButtonFont)]) {
-      [_doneButton.titleLabel setFont:[self.delegate doneButtonFont]];
-    }
-    CGSize textSize = [_doneButton.titleLabel.text sizeWithFont:_doneButton.titleLabel.font];
-    _doneButton.frame = CGRectMake(windowBounds.size.width - textSize.width - 30.,
-                                   20.,
-                                   textSize.width + 20.,
-                                   textSize.height + 10.);
-  } else {
+  //Delegate isn't set: put default image
+  if (!self.delegate) {
     [_doneButton setImageEdgeInsets:UIEdgeInsetsMake(-10, -10, -10, -10)];  // make click area bigger
     [_doneButton setImage:[UIImage imageNamed:@"Done"] forState:UIControlStateNormal];
     _doneButton.frame = CGRectMake(windowBounds.size.width - (51.0f + 9.0f),
                                    20.0f,
                                    51.0f,
                                    26.0f);
+  } else {
+    //Delegate handles the button text
+    if ([self.delegate respondsToSelector:@selector(doneButtonText)]) {
+      [_doneButton setTitle:[self.delegate doneButtonText]
+                   forState:UIControlStateNormal];
+      [_doneButton setShowsTouchWhenHighlighted:YES];
+      if ([self.delegate respondsToSelector:@selector(doneButtonFont)]) {
+        [_doneButton.titleLabel setFont:[self.delegate doneButtonFont]];
+      }
+      if ([self.delegate respondsToSelector:@selector(doneButtonFontColor)]) {
+        [_doneButton setTitleColor:[self.delegate doneButtonFontColor]
+                          forState:UIControlStateNormal];
+      }
+
+      //Delegate handles a background image
+      if ([self.delegate respondsToSelector:@selector(doneButtonBackgroundImage)]) {
+        [_doneButton setBackgroundImage:[self.delegate doneButtonBackgroundImage]
+                               forState:UIControlStateNormal];
+      } else { //No background image, use the colors
+        if ([self.delegate respondsToSelector:@selector(doneButtonBackgroundColor)]) {
+          [_doneButton setBackgroundColor:[self.delegate doneButtonBackgroundColor]];
+        }
+      }
+      CGSize textSize = [_doneButton.titleLabel.text sizeWithFont:_doneButton.titleLabel.font];
+      _doneButton.frame = CGRectMake(windowBounds.size.width - textSize.width - 30.,
+                                     20.,
+                                     textSize.width + 20.,
+                                     textSize.height + 10.);
+    } else if ([self.delegate respondsToSelector:@selector(doneButtonImage)]) {
+      //Delegate handles the done button as image
+      [_doneButton setImage:[self.delegate doneButtonImage]
+                   forState:UIControlStateNormal];
+      CGSize size = [self.delegate doneButtonImageSize];
+      CGRect frame = CGRectMake(windowBounds.size.width - size.width - 30.,
+                                20.,
+                                size.width,
+                                size.height);
+      _doneButton.frame = CGRectInset(frame, -10., -10.);
+    }
   }
-  
 }
 
 #pragma mark - Show
