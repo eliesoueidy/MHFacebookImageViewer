@@ -37,6 +37,15 @@ typedef void (^MHFacebookImageViewerClosingBlock)(void);
 - (UIImage*) imageDefaultAtIndex:(NSInteger)index imageViewer:(MHFacebookImageViewer*) imageViewer;
 @end
 
+@protocol MHFacebookImageViewerDelegate <NSObject>
+@optional
+- (UIColor *)doneButtonBackgroundColor;
+- (UIColor *)doneButtonFontColor;
+- (UIFont *)doneButtonFont;
+- (NSString *)doneButtonText;
+
+@end
+
 @interface MHFacebookImageViewer : UIViewController
 @property (weak, readonly, nonatomic) UIViewController *rootViewController;
 @property (nonatomic,strong) NSURL * imageURL;
@@ -44,6 +53,7 @@ typedef void (^MHFacebookImageViewerClosingBlock)(void);
 @property (nonatomic,weak) MHFacebookImageViewerOpeningBlock openingBlock;
 @property (nonatomic,weak) MHFacebookImageViewerClosingBlock closingBlock;
 @property (nonatomic,weak) id<MHFacebookImageViewerDatasource> imageDatasource;
+@property (nonatomic,weak) id<MHFacebookImageViewerDelegate> delegate;
 @property (nonatomic,assign) NSInteger initialIndex;
 
 
@@ -55,10 +65,24 @@ typedef void (^MHFacebookImageViewerClosingBlock)(void);
 
 @interface UIImageView(MHFacebookImageViewer)
 - (void) setupImageViewer;
-- (void) setupImageViewerWithCompletionOnOpen:(MHFacebookImageViewerOpeningBlock)open onClose:(MHFacebookImageViewerClosingBlock)close;
+- (void) setupImageViewerWithCompletionOnOpen:(MHFacebookImageViewerOpeningBlock)open
+                                      onClose:(MHFacebookImageViewerClosingBlock)close;
 - (void) setupImageViewerWithImageURL:(NSURL*)url;
-- (void) setupImageViewerWithImageURL:(NSURL *)url onOpen:(MHFacebookImageViewerOpeningBlock)open onClose:(MHFacebookImageViewerClosingBlock)close;
-- (void) setupImageViewerWithDatasource:(id<MHFacebookImageViewerDatasource>)imageDatasource onOpen:(MHFacebookImageViewerOpeningBlock)open onClose:(MHFacebookImageViewerClosingBlock)close;
-- (void) setupImageViewerWithDatasource:(id<MHFacebookImageViewerDatasource>)imageDatasource initialIndex:(NSInteger)initialIndex onOpen:(MHFacebookImageViewerOpeningBlock)open onClose:(MHFacebookImageViewerClosingBlock)close;
+- (void) setupImageViewerWithImageURL:(NSURL *)url
+                               onOpen:(MHFacebookImageViewerOpeningBlock)open
+                              onClose:(MHFacebookImageViewerClosingBlock)close;
+- (void) setupImageViewerWithDatasource:(id<MHFacebookImageViewerDatasource>)imageDatasource
+                                 onOpen:(MHFacebookImageViewerOpeningBlock)open
+                                onClose:(MHFacebookImageViewerClosingBlock)close;
+- (void) setupImageViewerWithDatasource:(id<MHFacebookImageViewerDatasource>)imageDatasource
+                           initialIndex:(NSInteger)initialIndex
+                                 onOpen:(MHFacebookImageViewerOpeningBlock)open
+                                onClose:(MHFacebookImageViewerClosingBlock)close;
+- (void) setupImageViewerWithDatasource:(id<MHFacebookImageViewerDatasource>)imageDatasource
+                               delegate:(id<MHFacebookImageViewerDelegate>)delegate
+                           initialIndex:(NSInteger)initialIndex
+                                 onOpen:(MHFacebookImageViewerOpeningBlock)open
+                                onClose:(MHFacebookImageViewerClosingBlock)close;
+
 - (void)removeImageViewer;
 @end

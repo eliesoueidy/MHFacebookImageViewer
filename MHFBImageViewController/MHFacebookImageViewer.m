@@ -444,6 +444,7 @@ static const CGFloat kMinImageScale = 1.0f;
 @synthesize closingBlock = _closingBlock;
 @synthesize senderView = _senderView;
 @synthesize initialIndex = _initialIndex;
+@synthesize delegate = _delegate;
 
 #pragma mark - TableView datasource
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView {
@@ -535,13 +536,28 @@ static const CGFloat kMinImageScale = 1.0f;
   _blackMask.backgroundColor = [UIColor blackColor];
   _blackMask.alpha = 0.0f;
   _blackMask.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-  [
-   self.view insertSubview:_blackMask atIndex:0];
+  [self.view insertSubview:_blackMask atIndex:0];
   
   _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-  [_doneButton setImageEdgeInsets:UIEdgeInsetsMake(-10, -10, -10, -10)];  // make click area bigger
-  [_doneButton setImage:[UIImage imageNamed:@"Done"] forState:UIControlStateNormal];
-  _doneButton.frame = CGRectMake(windowBounds.size.width - (51.0f + 9.0f),15.0f, 51.0f, 26.0f);
+  if (self.delegate && [self.delegate respondsToSelector:@selector(doneButtonText)]) {
+    [_doneButton setTitle:[self.delegate doneButtonText]
+                 forState:UIControlStateNormal];
+    [_doneButton setShowsTouchWhenHighlighted:YES];
+    if ([self.delegate respondsToSelector:@selector(doneButtonBackgroundColor)]) {
+      [_doneButton setBackgroundColor:[self.delegate doneButtonBackgroundColor]];
+    }
+    if ([self.delegate respondsToSelector:@selector(doneButtonFontColor)]) {
+      [_doneButton setTitleColor:[self.delegate doneButtonFontColor]
+                        forState:UIControlStateNormal];
+    }
+    if ([self.delegate respondsToSelector:@selector(doneButtonFont)]) {
+      [_doneButton.titleLabel setFont:[self.delegate doneButtonFont]];
+    }
+  } else {
+    [_doneButton setImageEdgeInsets:UIEdgeInsetsMake(-10, -10, -10, -10)];  // make click area bigger
+    [_doneButton setImage:[UIImage imageNamed:@"Done"] forState:UIControlStateNormal];
+  }
+  _doneButton.frame = CGRectMake(windowBounds.size.width - (51.0f + 9.0f),25.0f, 51.0f, 26.0f);
 }
 
 #pragma mark - Show
@@ -574,6 +590,7 @@ static const CGFloat kMinImageScale = 1.0f;
 @property(nonatomic,strong) MHFacebookImageViewerOpeningBlock openingBlock;
 @property(nonatomic,strong) MHFacebookImageViewerClosingBlock closingBlock;
 @property(nonatomic,weak) id<MHFacebookImageViewerDatasource> imageDatasource;
+@property(nonatomic, weak) id<MHFacebookImageViewerDelegate> imageDelegate;
 @property(nonatomic,assign) NSInteger initialIndex;
 
 @end
@@ -583,6 +600,7 @@ static const CGFloat kMinImageScale = 1.0f;
 @synthesize openingBlock;
 @synthesize closingBlock;
 @synthesize imageDatasource;
+@synthesize imageDelegate;
 @end
 
 @interface UIImageView()<UITabBarControllerDelegate>
@@ -621,16 +639,29 @@ static const CGFloat kMinImageScale = 1.0f;
 }
 
 - (void) setupImageViewerWithDatasource:(id<MHFacebookImageViewerDatasource>)imageDatasource initialIndex:(NSInteger)initialIndex onOpen:(MHFacebookImageViewerOpeningBlock)open onClose:(MHFacebookImageViewerClosingBlock)close{
+  [self setupImageViewerWithDatasource:imageDatasource
+                              delegate:nil
+                          initialIndex:initialIndex
+                                onOpen:open
+                               onClose:close];
+}
+
+- (void) setupImageViewerWithDatasource:(id<MHFacebookImageViewerDatasource>)imageDatasource
+                               delegate:(id<MHFacebookImageViewerDelegate>)delegate
+                           initialIndex:(NSInteger)initialIndex
+                                 onOpen:(MHFacebookImageViewerOpeningBlock)open
+                                onClose:(MHFacebookImageViewerClosingBlock)close
+{
   self.userInteractionEnabled = YES;
   MHFacebookImageViewerTapGestureRecognizer *  tapGesture = [[MHFacebookImageViewerTapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
   tapGesture.imageDatasource = imageDatasource;
+  tapGesture.imageDelegate = delegate;
   tapGesture.openingBlock = open;
   tapGesture.closingBlock = close;
   tapGesture.initialIndex = initialIndex;
   [self addGestureRecognizer:tapGesture];
   tapGesture = nil;
 }
-
 
 #pragma mark - Handle Tap
 - (void) didTap:(MHFacebookImageViewerTapGestureRecognizer*)gestureRecognizer {
@@ -641,6 +672,7 @@ static const CGFloat kMinImageScale = 1.0f;
   imageBrowser.openingBlock = gestureRecognizer.openingBlock;
   imageBrowser.closingBlock = gestureRecognizer.closingBlock;
   imageBrowser.imageDatasource = gestureRecognizer.imageDatasource;
+  imageBrowser.delegate = gestureRecognizer.imageDelegate;
   imageBrowser.initialIndex = gestureRecognizer.initialIndex;
   if(self.image)
     [imageBrowser presentFromRootViewController];
