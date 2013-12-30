@@ -44,6 +44,8 @@ typedef void (^MHFacebookImageViewerClosingBlock)(void);
 - (UIFont *)doneButtonFont;
 - (NSString *)doneButtonText;
 
+- (BOOL)canHideDoneButton;
+
 @end
 
 @interface MHFacebookImageViewer : UIViewController

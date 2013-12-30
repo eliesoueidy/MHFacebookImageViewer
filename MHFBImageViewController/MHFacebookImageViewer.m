@@ -54,6 +54,7 @@ static const CGFloat kMinImageScale = 1.0f;
 @property(nonatomic,assign) NSInteger imageIndex;
 @property(nonatomic,weak) UIImage * defaultImage;
 @property(nonatomic,assign) NSInteger initialIndex;
+@property(nonatomic,assign) BOOL canHideDoneButton;
 
 @property (nonatomic,weak) MHFacebookImageViewerOpeningBlock openingBlock;
 @property (nonatomic,weak) MHFacebookImageViewerClosingBlock closingBlock;
@@ -81,6 +82,7 @@ static const CGFloat kMinImageScale = 1.0f;
 @synthesize superView = _superView;
 @synthesize defaultImage = _defaultImage;
 @synthesize initialIndex = _initialIndex;
+@synthesize canHideDoneButton = _canHideDoneButton;
 
 - (void) loadAllRequiredViews{
   self.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -89,6 +91,9 @@ static const CGFloat kMinImageScale = 1.0f;
   __scrollView.delegate = self;
   __scrollView.backgroundColor = [UIColor clearColor];
   [self addSubview:__scrollView];
+  if (!_canHideDoneButton) {
+    [self.viewController.view addSubview:_doneButton];
+  }
   [_doneButton addTarget:self
                   action:@selector(close:)
         forControlEvents:UIControlEventTouchUpInside];
@@ -194,7 +199,9 @@ static const CGFloat kMinImageScale = 1.0f;
       _senderView.alpha = 1.0f;
   }
   // Hide the Done Button
-  [self hideDoneButton];
+  if (_canHideDoneButton) {
+    [self hideDoneButton];
+  }
   __scrollView.bounces = NO;
   CGSize windowSize = _blackMask.bounds.size;
   CGPoint currentPoint = [panGesture translationInView:__scrollView];
@@ -311,7 +318,9 @@ static const CGFloat kMinImageScale = 1.0f;
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView {
   _isAnimating = YES;
-  [self hideDoneButton];
+  if (_canHideDoneButton) {
+    [self hideDoneButton];
+  }
   [self centerScrollViewContents];
 }
 
@@ -352,6 +361,9 @@ static const CGFloat kMinImageScale = 1.0f;
 
 #pragma mark - Showing of Done Button if ever Zoom Scale is equal to 1
 - (void)didSingleTap:(UITapGestureRecognizer*)recognizer {
+  if (!_canHideDoneButton) {
+    return;
+  }
   if(_doneButton.superview){
     [self hideDoneButton];
   }else {
@@ -395,6 +407,9 @@ static const CGFloat kMinImageScale = 1.0f;
 
 #pragma mark - Hide the Done Button
 - (void) hideDoneButton {
+  if (!_canHideDoneButton) {
+    return;
+  }
   if(!_isDoneAnimating){
     if(_doneButton.superview) {
       _isDoneAnimating = YES;
@@ -476,6 +491,11 @@ static const CGFloat kMinImageScale = 1.0f;
     imageViewerCell.doneButton = _doneButton;
     imageViewerCell.initialIndex = _initialIndex;
     imageViewerCell.statusBarStyle = _statusBarStyle;
+    if (_delegate && [_delegate respondsToSelector:@selector(canHideDoneButton)]) {
+      imageViewerCell.canHideDoneButton = [_delegate canHideDoneButton];
+    } else {
+      imageViewerCell.canHideDoneButton = YES;
+    }
     [imageViewerCell loadAllRequiredViews];
     imageViewerCell.backgroundColor = [UIColor clearColor];
   }
