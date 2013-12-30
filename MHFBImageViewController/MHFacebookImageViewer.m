@@ -553,11 +553,20 @@ static const CGFloat kMinImageScale = 1.0f;
     if ([self.delegate respondsToSelector:@selector(doneButtonFont)]) {
       [_doneButton.titleLabel setFont:[self.delegate doneButtonFont]];
     }
+    CGSize textSize = [_doneButton.titleLabel.text sizeWithFont:_doneButton.titleLabel.font];
+    _doneButton.frame = CGRectMake(windowBounds.size.width - textSize.width - 30.,
+                                   20.,
+                                   textSize.width + 20.,
+                                   textSize.height + 10.);
   } else {
     [_doneButton setImageEdgeInsets:UIEdgeInsetsMake(-10, -10, -10, -10)];  // make click area bigger
     [_doneButton setImage:[UIImage imageNamed:@"Done"] forState:UIControlStateNormal];
+    _doneButton.frame = CGRectMake(windowBounds.size.width - (51.0f + 9.0f),
+                                   20.0f,
+                                   51.0f,
+                                   26.0f);
   }
-  _doneButton.frame = CGRectMake(windowBounds.size.width - (51.0f + 9.0f),25.0f, 51.0f, 26.0f);
+  
 }
 
 #pragma mark - Show
